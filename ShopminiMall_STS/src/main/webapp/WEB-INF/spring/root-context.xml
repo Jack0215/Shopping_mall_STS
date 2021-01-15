@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+
+	<!-- 1.jdbc.properties 생성 -->
+	<context:property-placeholder
+		location="classpath:com/config/jdbc.properties" /> <!-- 4가지 정보 찾기 -->
+
+	<!-- 2. dbcp2를 이용한 데이터Source생성 -->
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp2.BasicDataSource">
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url}" />
+		<property name="username" value="${userid}" />
+		<property name="password" value="${passwd}" />
+	</bean>
+	<!-- 3.SqlSessionFactoryBean --> <!-- 맵퍼에 대한 설정 -->
+	<bean id="sessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:com/config/CartMapper.xml</value> <!-- mapper등록 -->
+				<value>classpath:com/config/GoodsMapper.xml</value>
+				<value>classpath:com/config/MemberMapper.xml</value>
+			</list>
+		</property>
+
+		<property name="typeAliases"> <!-- dto 등록 -->
+			<list>
+				<value>com.dto.CartDTO</value> <!-- alias 주소는 각 클래스에서 alias 어노테이션으로 설정 -->
+				<value>com.dto.GoodsDTO</value>
+				<value>com.dto.MemberDTO</value>
+				<value>com.dto.OrderDTO</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 4. SqlSeiionTemplate : SqlSession 기능 실제 db연동에 사용함 -->
+	<bean id="sqlSessionTemplate"
+		class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory"
+			ref="sessionFactory"></constructor-arg>
+	</bean>
+</beans>
